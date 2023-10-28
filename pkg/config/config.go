@@ -1,13 +1,14 @@
 package config
 
 import (
-	"golang.org/x/exp/slices"
+	"fmt"
+	"reflect"
+	"strconv"
 )
 
-var keywords []string
-
-func IsKeyword(word string) bool {
-	return slices.Contains(keywords, word)
+var DefaultConfig = Config{
+	Frames:  10,
+	Quality: 80,
 }
 
 type Config struct {
@@ -19,19 +20,33 @@ type Config struct {
 	OFilename string `short:"o" long:"output"`  // output file/filepath (destination)
 }
 
-func (c *Config) SetShort(short string, value any) error {
-	return nil
+func From(args map[string]string) (Config, error) {
+	// TODOs:
+	//  1. Create a map (map[string]reflect.Value) for short and long tags
+	//  2. Iterate through args and get a proper reflect.Value
+	return DefaultConfig, nil
 }
 
-func (c *Config) SetLong(long string, value any) error {
-	return nil
-}
+func parseAndSet(rv reflect.Value, value string) {
+	// TODO: Check if value can be set
 
-var DefaultConfig = Config{
-	Frames:  10,
-	Quality: 80,
-}
+	var err error
+	switch rv.Kind() {
+	case reflect.String:
+		rv.SetString(value)
 
-func init() {
-	// Generate keywords from "long" tags of Config struct using reflection
+	case reflect.Bool:
+		var b bool
+		b, err = strconv.ParseBool(value)
+		rv.SetBool(b)
+
+	case reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Int:
+		var i int64
+		i, err = strconv.ParseInt(value, 10, 64)
+		rv.SetInt(i)
+	}
+
+	if err != nil {
+		panic(fmt.Sprintf("togif: parsing arguments: %v", err))
+	}
 }
