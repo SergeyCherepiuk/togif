@@ -4,15 +4,16 @@ import (
 	"strings"
 )
 
-// TODO: Unit-test
-
-func Parse(args []string) Config {
-	config := DefaultConfig
+func MustParse(args []string) Config {
+	config, err := from(parseArgs(args))
+	if err != nil {
+		panic(err)
+	}
 	return config
 }
 
 func parseArgs(args []string) map[string]string {
-	pairs := make(map[string]string)
+	flags := make(map[string]string)
 
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
@@ -24,40 +25,40 @@ func parseArgs(args []string) map[string]string {
 
 		if hasLongPrefix && containsEqSign {
 			pair := strings.Split(arg, "=")
-			pairs[pair[0][2:]] = pair[1]
+			flags[pair[0][2:]] = pair[1]
 			continue
 		}
 
 		if hasLongPrefix && nextIsValue {
-			pairs[arg[2:]] = args[i+1]
+			flags[arg[2:]] = args[i+1]
 			i++
 			continue
 		}
 
 		if hasLongPrefix {
-			pairs[arg[2:]] = "true"
+			flags[arg[2:]] = "true"
 			continue
 		}
 
 		if hasShortPrefix && containsEqSign {
 			pair := strings.Split(arg, "=")
-			pairs[pair[0][1:]] = pair[1]
+			flags[pair[0][1:]] = pair[1]
 			continue
 		}
 
 		if hasShortPrefix && nextIsValue {
-			pairs[arg[1:]] = args[i+1]
+			flags[arg[1:]] = args[i+1]
 			i++
 			continue
 		}
 
 		if hasShortPrefix {
 			for _, flag := range strings.Split(arg[1:], "") {
-				pairs[flag] = "true"
+				flags[flag] = "true"
 			}
 			continue
 		}
 	}
 
-	return pairs
+	return flags
 }
