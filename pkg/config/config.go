@@ -2,6 +2,8 @@ package config
 
 import (
 	"fmt"
+	"io"
+	"os"
 	"reflect"
 	"strconv"
 
@@ -14,18 +16,35 @@ var DefaultConfig = Config{
 }
 
 type Config struct {
-	Frames    uint64 `short:"f" long:"frames"`  // frames per second
-	Quality   uint8  `short:"q" long:"quality"` // quality, [0%, 100%]
-	StartMs   uint64 `short:"s" long:"start"`   // start point (in milliseconds)
-	EndMs     uint64 `short:"e" long:"end"`     // end point (in milliseconds)
-	IFilename string `short:"i" long:"input"`   // input file/filepath (source)
-	OFilename string `short:"o" long:"output"`  // output file/filepath (destination)
+	Input io.Reader
+
+	Output  string `short:"o" long:"output" info:"Path to the output file (destination), if omitted stdout will be used"`
+	Frames  uint64 `short:"f" long:"frames" info:"Sets the frames-rate of the resulting GIF image"`
+	Quality uint8  `short:"q" long:"quality" info:"Sets the quality of the resulting GIF image, should be an integer number in [0, 100] range"`
+
+	Help bool `short:"h" long:"help" info:"Provide information on existing options"`
 }
 
-func from(flags map[string]string) (Config, error) {
+func From(args []string) (Config, error) {
 	config := DefaultConfig
-	rvs := make(map[string]reflect.Value)
 
+	if len(args) <= 0 {
+		return config, nil
+	}
+
+	// Setting an input file
+	inputPath := args[len(args)-1]
+	if info, err := os.Stat(inputPath); err == nil && !info.IsDir() {
+		if inputFile, err := os.Open(inputPath); err == nil {
+			config.Input = inputFile
+		}
+		args = args[:len(args)-1]
+	}
+
+	// Parsing and setting the options
+	options := parseArgs(args)
+
+	rvs := make(map[string]reflect.Value)
 	configRt := reflect.TypeOf(config)
 	configRv := reflect.ValueOf(&config).Elem()
 
@@ -35,29 +54,31 @@ func from(flags map[string]string) (Config, error) {
 		rvs[field.Tag.Get("long")] = configRv.Field(i)
 	}
 
-	for flag, value := range flags {
-		rv, ok := rvs[flag]
+	for option, value := range options {
+		rv, ok := rvs[option]
 		if !ok {
 			return DefaultConfig, fmt.Errorf(
-				"%s: %s: failed to set -%s flag",
-				pkg.CLI_NAME, pkg.CONF_STAGE, flag,
+				"%s: %s: failed to set -%s option",
+				pkg.CLI_NAME, pkg.CONFIGURATION_STAGE, option,
 			)
 		}
 
 		if !rv.IsValid() || !rv.CanSet() {
 			return DefaultConfig, fmt.Errorf(
-				"%s: %s: cannot set -%s flag",
-				pkg.CLI_NAME, pkg.CONF_STAGE, flag,
+				"%s: %s: cannot set -%s option",
+				pkg.CLI_NAME, pkg.CONFIGURATION_STAGE, option,
 			)
 		}
 
-		parseAndSet(&rv, value)
+		if err := assertAndSet(&rv, value); err != nil {
+			return DefaultConfig, err
+		}
 	}
 
 	return config, nil
 }
 
-func parseAndSet(rv *reflect.Value, value string) {
+func assertAndSet(rv *reflect.Value, value string) error {
 	var err error
 	switch rv.Kind() {
 	case reflect.String:
@@ -80,6 +101,8 @@ func parseAndSet(rv *reflect.Value, value string) {
 	}
 
 	if err != nil {
-		panic(fmt.Sprintf("%s: %s: %v", pkg.CLI_NAME, pkg.CONF_STAGE, err))
+		return fmt.Errorf("%s: %s: %v", pkg.CLI_NAME, pkg.CONFIGURATION_STAGE, err)
 	}
+
+	return nil
 }

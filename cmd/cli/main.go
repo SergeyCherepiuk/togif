@@ -1,13 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
-	"github.com/SergeyCherepiuk/togif/pkg/config"
+	"github.com/SergeyCherepiuk/togif/pkg/handler"
 )
 
 func main() {
-	config := config.MustParse(os.Args[1:])
-	fmt.Printf("%+v\n", config)
+	handler.Handle(os.Args[1:])
 }
