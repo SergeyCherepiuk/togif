@@ -108,3 +108,12 @@ func Test_DoubleDashArgs_Garbage(t *testing.T) {
 
 	internal.ShouldBe[map[string]string](t, actual, expected)
 }
+
+func Test_SingleDashArgs_Empty(t *testing.T) {
+	args := []string{}
+
+	actual := parseArgs(args)
+	expected := make(map[string]string)
+
+	internal.ShouldBe[map[string]string](t, actual, expected)
+}
