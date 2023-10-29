@@ -4,7 +4,6 @@ import (
 	"strings"
 )
 
-// TODO: Optimize and unit test
 func Tabulate(lines [][]string, extraSpaces int) []string {
 	if len(lines) <= 0 {
 		return make([]string, 0)
@@ -17,23 +16,27 @@ func Tabulate(lines [][]string, extraSpaces int) []string {
 		}
 	}
 
-	results := make([]string, len(lines))
+	result := make([]string, len(lines))
 
 	for i := 0; i < maxPartsCount; i++ {
-		var maxPartLen int
+		var maxPartLength int
 		for _, line := range lines {
-			if i < len(line) && len(line[i]) > maxPartLen {
-				maxPartLen = len(line[i])
+			if i < len(line) && len(line[i]) > maxPartLength {
+				maxPartLength = len(line[i])
 			}
 		}
 
-		for j, line := range lines {
-			if i < len(line) {
-				spaces := strings.Repeat(" ", maxPartLen-len(line[i])+extraSpaces)
-				results[j] = results[j] + line[i] + spaces
+		for j := range lines {
+			if i < len(lines[j]) {
+				result[j] = result[j] + lines[j][i]
+			}
+
+			if i+1 < len(lines[j]) {
+				spaces := strings.Repeat(" ", maxPartLength-len(lines[j][i])+extraSpaces)
+				result[j] = result[j] + spaces
 			}
 		}
 	}
 
-	return results
+	return result
 }
