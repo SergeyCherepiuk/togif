@@ -2,18 +2,16 @@ package handler
 
 import (
 	"fmt"
-	"io"
-	"net/http"
 	"os"
-	"strings"
 
 	"github.com/SergeyCherepiuk/togif/pkg"
 	"github.com/SergeyCherepiuk/togif/pkg/config"
 	"github.com/SergeyCherepiuk/togif/pkg/help"
+	"github.com/SergeyCherepiuk/togif/pkg/validation"
 )
 
 func Handle(args []string) {
-	config, err := config.From(os.Args[1:])
+	config, err := config.From(args)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		help.Display(os.Stderr)
@@ -42,15 +40,25 @@ func validate(config config.Config) error {
 		)
 	}
 
-	if config.Input != nil {
-		if buf, err := io.ReadAll(config.Input); err == nil {
-			if !strings.HasPrefix(http.DetectContentType(buf), "video") {
-				return fmt.Errorf(
-					"%s: %s: unsupported or invalid video format",
-					pkg.CLI_NAME, pkg.VALIDATION_STAGE,
-				)
-			}
-		}
+	if config.Input == nil {
+		return fmt.Errorf(
+			"%s: %s: no input stream provided",
+			pkg.CLI_NAME, pkg.VALIDATION_STAGE,
+		)
+	}
+
+	if config.Output == nil {
+		return fmt.Errorf(
+			"%s: %s: no output stream provided",
+			pkg.CLI_NAME, pkg.VALIDATION_STAGE,
+		)
+	}
+
+	if is, err := validation.IsVideoFile(&config.Input); !is || err != nil {
+		return fmt.Errorf(
+			"%s: %s: unsupported or invalid video format",
+			pkg.CLI_NAME, pkg.VALIDATION_STAGE,
+		)
 	}
 
 	return nil
