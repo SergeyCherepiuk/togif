@@ -31,6 +31,38 @@ type Config struct {
 	Help bool `short:"h" long:"help" info:"Provide information on existing options"`
 }
 
+func (c *Config) Validate() error {
+	if c.Quality > 100 {
+		return fmt.Errorf(
+			"%s: %s: invalid quality value: should be in [0, 100] range",
+			pkg.CLI_NAME, pkg.VALIDATION_STAGE,
+		)
+	}
+
+	if c.Input == nil {
+		return fmt.Errorf(
+			"%s: %s: no input stream provided",
+			pkg.CLI_NAME, pkg.VALIDATION_STAGE,
+		)
+	}
+
+	if c.Output == nil {
+		return fmt.Errorf(
+			"%s: %s: no output stream provided",
+			pkg.CLI_NAME, pkg.VALIDATION_STAGE,
+		)
+	}
+
+	if is, err := validation.IsVideoFile(&c.Input); !is || err != nil {
+		return fmt.Errorf(
+			"%s: %s: unsupported or invalid video format",
+			pkg.CLI_NAME, pkg.VALIDATION_STAGE,
+		)
+	}
+
+	return nil
+}
+
 func (c *Config) setInputFile(path string) error {
 	var file io.Reader
 	var err error
