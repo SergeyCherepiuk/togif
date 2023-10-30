@@ -10,7 +10,6 @@ import (
 
 	"github.com/SergeyCherepiuk/togif/pkg"
 	"github.com/SergeyCherepiuk/togif/pkg/internal"
-	"github.com/SergeyCherepiuk/togif/pkg/validation"
 )
 
 var DefaultConfig = Config{
@@ -53,11 +52,8 @@ func (c *Config) Validate() error {
 		)
 	}
 
-	if is, err := validation.IsVideoFile(&c.Input); !is || err != nil {
-		return fmt.Errorf(
-			"%s: %s: unsupported or invalid video format",
-			pkg.CLI_NAME, pkg.VALIDATION_STAGE,
-		)
+	if _, err := internal.VideoFileType(&c.Input); err != nil {
+		return fmt.Errorf("%s: %s: %v", pkg.CLI_NAME, pkg.VALIDATION_STAGE, err)
 	}
 
 	return nil
@@ -70,7 +66,7 @@ func (c *Config) setInputFile(path string) error {
 		return err
 	}
 
-	if is, err := validation.IsVideoFile(&file); !is || err != nil {
+	if _, err := internal.VideoFileType(&file); err != nil {
 		return fmt.Errorf("unsupported or invalid video format")
 	}
 
