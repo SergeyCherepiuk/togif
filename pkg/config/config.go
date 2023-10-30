@@ -1,6 +1,7 @@
 package config
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"os"
@@ -11,6 +12,7 @@ import (
 )
 
 var DefaultConfig = Config{
+	Input:   bufio.NewReader(os.Stdin),
 	Frames:  10,
 	Quality: 80,
 }
