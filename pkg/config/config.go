@@ -42,6 +42,13 @@ func (c *Config) Validate() error {
 		)
 	}
 
+	if _, err := os.Stat(c.OutputPath); err == nil {
+		return fmt.Errorf(
+			"%s: %s: output file already exists: %s",
+			pkg.CLI_NAME, pkg.VALIDATION_STAGE, c.OutputPath,
+		)
+	}
+
 	if _, err := internal.VideoFileType(&c.Input); err != nil {
 		return fmt.Errorf("%s: %s: %v", pkg.CLI_NAME, pkg.VALIDATION_STAGE, err)
 	}

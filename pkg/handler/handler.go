@@ -10,10 +10,16 @@ import (
 )
 
 func Handle(args []string) {
+	var err error
+	defer func() {
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			help.Display(os.Stderr)
+		}
+	}()
+
 	config, err := config.From(args)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		help.Display(os.Stderr)
 		return
 	}
 
@@ -22,13 +28,9 @@ func Handle(args []string) {
 		return
 	}
 
-	if err := config.Validate(); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		help.Display(os.Stderr)
+	if err = config.Validate(); err != nil {
 		return
 	}
 
-	if err := gif.Convert(config); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-	}
+	err = gif.Convert(config)
 }
