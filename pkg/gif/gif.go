@@ -3,6 +3,7 @@ package gif
 import (
 	"bufio"
 	"fmt"
+	"os"
 	"os/exec"
 
 	"github.com/SergeyCherepiuk/togif/pkg"
@@ -29,9 +30,11 @@ func Convert(config config.Config) error {
 		stdin.Close()
 	}()
 
-	if err := cmd.Run(); err != nil {
+	output, err := cmd.Output()
+	if err != nil {
 		return fmt.Errorf("%s: %s: %v", pkg.CLI_NAME, pkg.CONVERSION_STAGE, err)
 	}
 
+	fmt.Fprint(os.Stdout, string(output))
 	return nil
 }

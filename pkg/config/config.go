@@ -124,5 +124,9 @@ func From(args []string) (Config, error) {
 		)
 	}
 
+	if config.OutputPath == "" {
+		config.OutputPath = "pipe:1"
+	}
+
 	return config, nil
 }
