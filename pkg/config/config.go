@@ -6,7 +6,6 @@ import (
 	"io"
 	"os"
 	"reflect"
-	"strings"
 
 	"github.com/SergeyCherepiuk/togif/pkg"
 	"github.com/SergeyCherepiuk/togif/pkg/internal"
@@ -14,14 +13,12 @@ import (
 
 var DefaultConfig = Config{
 	Input:   bufio.NewReader(os.Stdin),
-	Output:  bufio.NewWriter(os.Stdout),
 	Frames:  10,
 	Quality: 80,
 }
 
 type Config struct {
-	Input  io.Reader
-	Output io.Writer
+	Input io.Reader
 
 	OutputPath string `short:"o" long:"output" info:"Path to the output file (destination), if omitted stdout will be used"`
 	Frames     uint64 `short:"f" long:"frames" info:"Sets the frames-rate of the resulting GIF image"`
@@ -41,13 +38,6 @@ func (c *Config) Validate() error {
 	if c.Input == nil {
 		return fmt.Errorf(
 			"%s: %s: no input stream provided",
-			pkg.CLI_NAME, pkg.VALIDATION_STAGE,
-		)
-	}
-
-	if c.Output == nil {
-		return fmt.Errorf(
-			"%s: %s: no output stream provided",
 			pkg.CLI_NAME, pkg.VALIDATION_STAGE,
 		)
 	}
@@ -72,18 +62,6 @@ func (c *Config) setInputFile(path string) error {
 
 	c.Input = file
 	return nil
-}
-
-func (c *Config) setOutputFile(path string) error {
-	if file, err := os.Open(path); err == nil {
-		c.Output = file
-		return nil
-	} else if file, err := os.Create(path); err == nil {
-		c.Output = file
-		return nil
-	}
-
-	return fmt.Errorf("failed to open or create an output file")
 }
 
 func (c *Config) setOptions(options map[string]string) error {
@@ -137,10 +115,6 @@ func From(args []string) (Config, error) {
 			"%s: %s: %v",
 			pkg.CLI_NAME, pkg.CONFIGURATION_STAGE, err,
 		)
-	}
-
-	if config.OutputPath != "" && strings.HasSuffix(config.OutputPath, ".gif") {
-		config.setOutputFile(config.OutputPath) // NOTE: Error is ignored
 	}
 
 	return config, nil

@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/SergeyCherepiuk/togif/pkg/config"
+	"github.com/SergeyCherepiuk/togif/pkg/gif"
 	"github.com/SergeyCherepiuk/togif/pkg/help"
 )
 
@@ -27,5 +28,7 @@ func Handle(args []string) {
 		return
 	}
 
-	fmt.Printf("Execution continues: %+v\n", config)
+	if err := gif.Convert(config); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+	}
 }
