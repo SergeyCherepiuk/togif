@@ -12,29 +12,22 @@ import (
 )
 
 var DefaultConfig = Config{
-	Input:   bufio.NewReader(os.Stdin),
-	Frames:  10,
-	Quality: 80,
+	Input:  bufio.NewReader(os.Stdin),
+	Frames: 10,
+	Speed:  1.0,
 }
 
 type Config struct {
 	Input io.Reader
 
-	OutputPath string `short:"o" long:"output" info:"Path to the output file (destination), if omitted stdout will be used"`
-	Frames     uint64 `short:"f" long:"frames" info:"Sets the frames-rate of the resulting GIF image"`
-	Quality    uint8  `short:"q" long:"quality" info:"Sets the quality of the resulting GIF image, should be an integer number in [0, 100] range"`
+	OutputPath string  `short:"o" long:"output" info:"Path to the output file (destination), if omitted stdout will be used"`
+	Frames     uint64  `short:"f" long:"frames" info:"Sets the frames-rate of the resulting GIF image"`
+	Speed      float64 `short:"s" long:"speed" info:"Speeds up (s > 1.0) or slows down (s < 1.0) the output GIF"`
 
 	Help bool `short:"h" long:"help" info:"Provide information on existing options"`
 }
 
 func (c *Config) Validate() error {
-	if c.Quality > 100 {
-		return fmt.Errorf(
-			"%s: %s: invalid quality value: should be in [0, 100] range",
-			pkg.CLI_NAME, pkg.VALIDATION_STAGE,
-		)
-	}
-
 	if c.Input == nil {
 		return fmt.Errorf(
 			"%s: %s: no input stream provided",
@@ -127,6 +120,8 @@ func From(args []string) (Config, error) {
 	if config.OutputPath == "" {
 		config.OutputPath = "pipe:1"
 	}
+
+	config.Speed = float64(1.0) / config.Speed
 
 	return config, nil
 }

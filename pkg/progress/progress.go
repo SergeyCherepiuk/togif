@@ -22,7 +22,7 @@ func write(percent float32) {
 }
 
 func format(percent float32, length int) string {
-	f := float32(100) / float32(length)
+	f := float32(100.0) / float32(length)
 	done := strings.Repeat("=", int(percent/f))
 	left := strings.Repeat(" ", length-int(percent/f))
 	return fmt.Sprintf("Progress: [%s%s] %6.2f%%", done, left, percent)

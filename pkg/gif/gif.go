@@ -17,9 +17,10 @@ func Convert(config config.Config) error {
 		"ffmpeg",
 		"-i", "-",
 		"-f", "gif",
-		"-vf", fmt.Sprintf("fps=%d", config.Frames),
+		"-r", fmt.Sprint(config.Frames),
+		"-vf", fmt.Sprintf("setpts=%f*PTS", config.Speed),
 		config.OutputPath,
-	) // TODO: Make use of config.Quality option
+	)
 
 	stdin, err := cmd.StdinPipe()
 	if err != nil {

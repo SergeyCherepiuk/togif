@@ -27,6 +27,10 @@ func AssertAndSet(rv *reflect.Value, value string) error {
 		var u uint64
 		u, err = strconv.ParseUint(value, 10, 64)
 		rv.SetUint(u)
+	case reflect.Float32, reflect.Float64:
+		var f float64
+		f, err = strconv.ParseFloat(value, 64)
+		rv.SetFloat(f)
 	}
 
 	return err
