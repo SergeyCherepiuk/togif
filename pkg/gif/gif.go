@@ -27,15 +27,18 @@ func Convert(config config.Config) error {
 		return fmt.Errorf("%s: %s: %v", pkg.CLI_NAME, pkg.CONVERSION_STAGE, err)
 	}
 
-	size, _ := internal.FileSize(&config.Input)
-	stdin, ch := progress.NewWriteCloser(stdin)
-	buf := bufio.NewWriterSize(stdin, 65536)
+	if config.Verbose {
+		var ch <-chan int
+		size, _ := internal.FileSize(&config.Input)
+		stdin, ch = progress.NewWriteCloser(stdin)
+		go progress.Display(ch, size)
+	}
 
+	buf := bufio.NewWriterSize(stdin, 65536)
 	go func() {
 		buf.ReadFrom(config.Input)
 		stdin.Close()
 	}()
-	go progress.Display(ch, size)
 
 	output, err := cmd.Output()
 	if err != nil {
