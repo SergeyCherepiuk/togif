@@ -15,7 +15,16 @@ import (
 var helpTemplate *template.Template
 
 func init() {
-	helpTemplate = template.Must(template.ParseFiles("pkg/help/help.txt"))
+	helpTemplate = template.Must(template.New("help").Parse(
+		`A tool for converting videos into GIF images
+
+Usage: togif [OPTIONS] [FILE]
+* If input file is omitted stdin will be used
+
+List of available options:
+{{range .OptionsInfo}}    {{.}}
+{{end}}`,
+	))
 }
 
 func Display(out io.Writer) {
