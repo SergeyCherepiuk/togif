@@ -17,7 +17,7 @@ You can get brief descriptions of all available options by running the program w
 $ go run cmd/cli/main.go -h
 ```
 
-Output on 02.11.2023:
+Output on 03.11.2023:
 ```
 A tool for converting videos into GIF images
 
@@ -28,7 +28,7 @@ List of available options:
     -o, --output    Path to the output file (destination), if omitted stdout will be used
     -f, --frames    Sets the frames-rate of the resulting GIF image
     -s, --speed     Speeds up (s > 1.0) or slows down (s < 1.0) the output GIF
-    -v, --verbose   TODO
+    -v, --verbose   Displays the progress during conversion
     -h, --help      Provide information on existing options
 ```
 

@@ -24,7 +24,7 @@ type Config struct {
 	OutputPath string  `short:"o" long:"output" info:"Path to the output file (destination), if omitted stdout will be used"`
 	Frames     uint64  `short:"f" long:"frames" info:"Sets the frames-rate of the resulting GIF image"`
 	Speed      float64 `short:"s" long:"speed" info:"Speeds up (s > 1.0) or slows down (s < 1.0) the output GIF"`
-	Verbose    bool    `short:"v" long:"verbose" info:"TODO"`
+	Verbose    bool    `short:"v" long:"verbose" info:"Displays the progress during conversion"`
 
 	Help bool `short:"h" long:"help" info:"Provide information on existing options"`
 }
