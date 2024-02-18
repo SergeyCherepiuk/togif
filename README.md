@@ -88,5 +88,5 @@ $ go build -o cmd/cli/togif cmd/cli/main.go
 Additionally you might want to copy it to `/usr/bin` directory, in order to be able to use it anywhere across you system:
 
 ```bash
-$ sudo cp cmd/cli/togif /usr/bin
+$ sudo cp cmd/cli/togif /usr/local/bin
 ```
